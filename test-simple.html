@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phaser Test</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #00ff41;
+            font-family: 'Courier New', monospace;
+        }
+        #game-container {
+            border: 2px solid #00ff41;
+            background: #000;
+            width: 1024px;
+            height: 768px;
+        }
+        #debug {
+            margin-top: 20px;
+            padding: 10px;
+            background: #333;
+            border: 1px solid #00ff41;
+        }
+    </style>
+</head>
+<body>
+    <h1>Phaser CDN Test</h1>
+    <div id="debug">Loading...</div>
+    <div id="game-container"></div>
+    
+    <script>
+        console.log('Script started');
+        document.getElementById('debug').innerHTML = 'Script started...';
+    </script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.70.0/dist/phaser.min.js"></script>
+    
+    <script>
+        console.log('Phaser loaded, version:', Phaser.VERSION);
+        document.getElementById('debug').innerHTML += '<br>Phaser loaded: ' + Phaser.VERSION;
+        
+        class TestScene extends Phaser.Scene {
+            constructor() {
+                super({ key: 'TestScene' });
+                console.log('TestScene constructor called');
+            }
+            
+            create() {
+                console.log('TestScene create called');
+                document.getElementById('debug').innerHTML += '<br>Scene created successfully!';
+                
+                this.add.text(512, 100, 'PHASER WORKS!', {
+                    fontSize: '32px',
+                    fill: '#00ff41',
+                    fontFamily: 'Courier New'
+                }).setOrigin(0.5);
+                
+                this.add.text(512, 200, 'CDN is working correctly', {
+                    fontSize: '16px',
+                    fill: '#ffffff',
+                    fontFamily: 'Courier New'
+                }).setOrigin(0.5);
+                
+                this.add.rectangle(512, 400, 200, 100, 0x00ff41);
+                this.add.text(512, 400, 'Test Rectangle', {
+                    fontSize: '16px',
+                    fill: '#000000',
+                    fontFamily: 'Courier New'
+                }).setOrigin(0.5);
+            }
+        }
+        
+        const config = {
+            type: Phaser.AUTO,
+            width: 1024,
+            height: 768,
+            parent: 'game-container',
+            backgroundColor: '#001122',
+            scene: TestScene
+        };
+        
+        try {
+            console.log('Creating Phaser game...');
+            const game = new Phaser.Game(config);
+            console.log('Phaser game created successfully');
+            document.getElementById('debug').innerHTML += '<br>Game initialized successfully!';
+        } catch (error) {
+            console.error('Error creating Phaser game:', error);
+            document.getElementById('debug').innerHTML += '<br>ERROR: ' + error.message;
+        }
+    </script>
+</body>
+</html>

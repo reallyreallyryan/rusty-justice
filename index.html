@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rusty Justice - MVP</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #1a1a1a;
+            color: #00ff41;
+            font-family: 'Courier New', monospace;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        #game-container {
+            border: 2px solid #00ff41;
+            background: #000;
+            width: 1024px;
+            height: 768px;
+        }
+        #debug {
+            margin-bottom: 10px;
+            padding: 10px;
+            background: #333;
+            border: 1px solid #00ff41;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div id="debug">Loading Rusty Justice...</div>
+    <div id="game-container"></div>
+    
+    <script>
+        console.log('Starting Rusty Justice initialization...');
+        document.getElementById('debug').innerHTML = 'Loading Phaser...';
+        
+        // Error handling for script loading
+        window.addEventListener('error', function(e) {
+            console.error('Script error:', e.error);
+            document.getElementById('debug').innerHTML += '<br>ERROR: ' + e.message;
+        });
+    </script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.70.0/dist/phaser.min.js" 
+            onload="console.log('Phaser loaded:', Phaser.VERSION); document.getElementById('debug').innerHTML += '<br>Phaser ' + Phaser.VERSION + ' loaded';"
+            onerror="console.error('Failed to load Phaser'); document.getElementById('debug').innerHTML += '<br>FAILED to load Phaser CDN';"></script>
+    
+    <script>
+        // Wait for Phaser to load before loading our scripts
+        function loadScript(src, callback) {
+            const script = document.createElement('script');
+            script.src = src;
+            script.onload = callback;
+            script.onerror = function() {
+                console.error('Failed to load:', src);
+                document.getElementById('debug').innerHTML += '<br>FAILED: ' + src;
+            };
+            document.head.appendChild(script);
+        }
+        
+        // Load scripts in proper order
+        function initializeGame() {
+            console.log('Loading game scripts...');
+            document.getElementById('debug').innerHTML += '<br>Loading game scripts...';
+            
+            // Load GameManager first
+            loadScript('managers/GameManager.js', function() {
+                console.log('GameManager loaded');
+                    loadScript('managers/BattleManager.js', function() {
+                        console.log('BattleManager loaded');
+                        // Load utilities
+                        loadScript('utils/BlackjackLogic.js', function() {
+                            console.log('BlackjackLogic loaded');
+                            // Load game objects
+                            loadScript('objects/Deck.js', function() {
+                                console.log('Deck loaded');
+                                loadScript('objects/Player.js', function() {
+                                    console.log('Player loaded');
+                                    loadScript('objects/Boss.js', function() {
+                                        console.log('Boss loaded');
+                                        // Load all scenes
+                                        loadScript('scenes/BootScene.js', function() {
+                                            console.log('BootScene loaded');
+                                            loadScript('scenes/StartScene.js', function() {
+                                                console.log('StartScene loaded');
+                                                loadScript('scenes/CharacterSelectScene.js', function() {
+                                                    console.log('CharacterSelectScene loaded');
+                                                    loadScript('scenes/GameScene.js', function() {
+                                                        console.log('GameScene loaded');
+                                                        loadScript('scenes/VictoryScene.js', function() {
+                                                            console.log('VictoryScene loaded');
+                                                            loadScript('scenes/GameOverScene.js', function() {
+                                                                console.log('GameOverScene loaded');
+                                                                startGame();
+                                                            });
+                                                        });
+                                                    });
+                                                });
+                                            });
+                                        });
+                                    });
+                                });
+                            });
+                        });
+                    });
+            });
+        }
+        
+        function startGame() {
+            console.log('Starting game...');
+            document.getElementById('debug').innerHTML += '<br>Starting game...';
+            
+            try {
+                // Initialize GameManager
+                const gameManager = new GameManager();
+                
+                const config = {
+                    type: Phaser.AUTO,
+                    width: 1024,
+                    height: 768,
+                    parent: 'game-container',
+                    backgroundColor: '#001122',
+                    scene: [BootScene, StartScene, CharacterSelectScene, GameScene, VictoryScene, GameOverScene]
+                };
+                
+                const game = new Phaser.Game(config);
+                
+                // Register GameManager globally for all scenes
+                game.registry.set('gameManager', gameManager);
+                
+                console.log('Game created successfully!');
+                document.getElementById('debug').innerHTML += '<br>Game running! Check the game area below.';
+                
+                // Hide debug after successful load
+                setTimeout(() => {
+                    document.getElementById('debug').style.display = 'none';
+                }, 3000);
+                
+            } catch (error) {
+                console.error('Error starting game:', error);
+                document.getElementById('debug').innerHTML += '<br>GAME ERROR: ' + error.message;
+            }
+        }
+        
+        // Check if Phaser is already loaded, otherwise wait
+        if (typeof Phaser !== 'undefined') {
+            initializeGame();
+        } else {
+            // Wait for Phaser to load
+            setTimeout(function() {
+                if (typeof Phaser !== 'undefined') {
+                    initializeGame();
+                } else {
+                    console.error('Phaser failed to load');
+                    document.getElementById('debug').innerHTML += '<br>CRITICAL: Phaser failed to load from CDN';
+                }
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
