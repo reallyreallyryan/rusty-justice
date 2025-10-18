@@ -6,6 +6,8 @@ class Boss {
         this.hand = [];
         this.currentBet = 15;
         this.name = "Iron Mike";
+        // Create blackjack logic instance for this boss
+        this.blackjackLogic = new BlackjackLogic();
     }
 
     addCard(card) {
@@ -21,7 +23,7 @@ class Boss {
     }
 
     shouldHit() {
-        const handValue = this.scene.blackjackLogic.calculateHandValue(this.hand);
+        const handValue = this.blackjackLogic.calculateHandValue(this.hand);
         return handValue < 17;
     }
 }

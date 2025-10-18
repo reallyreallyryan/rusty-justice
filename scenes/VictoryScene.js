@@ -97,6 +97,8 @@ class VictoryScene extends Phaser.Scene {
 
         const character = this.gameManager.getSelectedCharacter();
         const characterName = character ? character.name : 'Unknown';
+        
+        const bossName = this.battleData.currentBoss ? this.battleData.currentBoss.name : 'Unknown Boss';
 
         const leftStats = this.add.text(-200, -20, 
             `GUNSLINGER: ${characterName}\n` +
@@ -188,7 +190,7 @@ class VictoryScene extends Phaser.Scene {
     }
 
     playVictoryEffects() {
-        this.sound.play('victory', { volume: 0.8 }).catch(() => {});
+        // Audio removed
         
         this.cameras.main.flash(500, 0, 255, 65, false);
         
@@ -215,7 +217,7 @@ class VictoryScene extends Phaser.Scene {
 
     playAgain() {
         console.log('Starting new game...');
-        this.sound.play('buttonClick', { volume: 0.5 }).catch(() => {});
+        // Audio removed
         
         this.cameras.main.fade(250, 0, 17, 34);
         
@@ -228,7 +230,7 @@ class VictoryScene extends Phaser.Scene {
 
     goToMainMenu() {
         console.log('Returning to main menu...');
-        this.sound.play('buttonClick', { volume: 0.5 }).catch(() => {});
+        // Audio removed
         
         this.cameras.main.fade(250, 0, 17, 34);
         

@@ -109,7 +109,7 @@ class StartScene extends Phaser.Scene {
 
         startButton.on('pointerover', () => {
             startButton.setScale(1.1);
-            this.sound.play('buttonHover', { volume: 0.3 }).catch(() => {});
+            // Removed audio - causes errors when audio not loaded
         });
 
         startButton.on('pointerout', () => {
@@ -170,7 +170,7 @@ class StartScene extends Phaser.Scene {
 
     handleStartGame() {
         console.log('Starting new game...');
-        this.sound.play('buttonClick', { volume: 0.5 }).catch(() => {});
+        // Removed audio that was causing errors
         
         this.cameras.main.fade(250, 0, 17, 34);
         
@@ -183,7 +183,6 @@ class StartScene extends Phaser.Scene {
     handleContinueGame() {
         if (this.hasExistingGame()) {
             console.log('Continuing existing game...');
-            this.sound.play('buttonClick', { volume: 0.5 }).catch(() => {});
             
             this.cameras.main.fade(250, 0, 17, 34);
             

@@ -189,7 +189,7 @@ class GameOverScene extends Phaser.Scene {
     }
 
     playGameOverEffects() {
-        this.sound.play('gameOver', { volume: 0.8 }).catch(() => {});
+        // Audio removed
         
         this.cameras.main.shake(500, 0.02);
         
@@ -210,7 +210,7 @@ class GameOverScene extends Phaser.Scene {
 
     tryAgain() {
         console.log('Trying again...');
-        this.sound.play('buttonClick', { volume: 0.5 }).catch(() => {});
+        // Audio removed
         
         this.cameras.main.fade(250, 34, 17, 0);
         
@@ -223,7 +223,7 @@ class GameOverScene extends Phaser.Scene {
 
     goToMainMenu() {
         console.log('Returning to main menu...');
-        this.sound.play('buttonClick', { volume: 0.5 }).catch(() => {});
+        // Audio removed
         
         this.cameras.main.fade(250, 34, 17, 0);
         

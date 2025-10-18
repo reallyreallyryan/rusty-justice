@@ -72,33 +72,32 @@
             // Load GameManager first
             loadScript('managers/GameManager.js', function() {
                 console.log('GameManager loaded');
-                    loadScript('managers/BattleManager.js', function() {
-                        console.log('BattleManager loaded');
-                        // Load utilities
-                        loadScript('utils/BlackjackLogic.js', function() {
-                            console.log('BlackjackLogic loaded');
-                            // Load game objects
-                            loadScript('objects/Deck.js', function() {
-                                console.log('Deck loaded');
-                                loadScript('objects/Player.js', function() {
-                                    console.log('Player loaded');
-                                    loadScript('objects/Boss.js', function() {
-                                        console.log('Boss loaded');
-                                        // Load all scenes
-                                        loadScript('scenes/BootScene.js', function() {
-                                            console.log('BootScene loaded');
-                                            loadScript('scenes/StartScene.js', function() {
-                                                console.log('StartScene loaded');
-                                                loadScript('scenes/CharacterSelectScene.js', function() {
-                                                    console.log('CharacterSelectScene loaded');
-                                                    loadScript('scenes/GameScene.js', function() {
-                                                        console.log('GameScene loaded');
-                                                        loadScript('scenes/VictoryScene.js', function() {
-                                                            console.log('VictoryScene loaded');
-                                                            loadScript('scenes/GameOverScene.js', function() {
-                                                                console.log('GameOverScene loaded');
-                                                                startGame();
-                                                            });
+                loadScript('managers/BattleManager.js', function() {
+                    console.log('BattleManager loaded');
+                    // Load utilities
+                    loadScript('utils/BlackjackLogic.js', function() {
+                        console.log('BlackjackLogic loaded');
+                        // Load game objects
+                        loadScript('objects/Deck.js', function() {
+                            console.log('Deck loaded');
+                            loadScript('objects/Player.js', function() {
+                                console.log('Player loaded');
+                                loadScript('objects/Boss.js', function() {
+                                    console.log('Boss loaded');
+                                    // Load all scenes
+                                    loadScript('scenes/BootScene.js', function() {
+                                        console.log('BootScene loaded');
+                                        loadScript('scenes/StartScene.js', function() {
+                                            console.log('StartScene loaded');
+                                            loadScript('scenes/CharacterSelectScene.js', function() {
+                                                console.log('CharacterSelectScene loaded');
+                                                loadScript('scenes/GameScene.js', function() {
+                                                    console.log('GameScene loaded');
+                                                    loadScript('scenes/VictoryScene.js', function() {
+                                                        console.log('VictoryScene loaded');
+                                                        loadScript('scenes/GameOverScene.js', function() {
+                                                            console.log('GameOverScene loaded');
+                                                            startGame();
                                                         });
                                                     });
                                                 });
@@ -109,6 +108,7 @@
                             });
                         });
                     });
+                });
             });
         }
         
@@ -117,8 +117,9 @@
             document.getElementById('debug').innerHTML += '<br>Starting game...';
             
             try {
-                // Initialize GameManager
+                // Initialize GameManager FIRST before creating the game
                 const gameManager = new GameManager();
+                console.log('GameManager instance created:', gameManager);
                 
                 const config = {
                     type: Phaser.AUTO,
@@ -126,13 +127,17 @@
                     height: 768,
                     parent: 'game-container',
                     backgroundColor: '#001122',
-                    scene: [BootScene, StartScene, CharacterSelectScene, GameScene, VictoryScene, GameOverScene]
+                    scene: [BootScene, StartScene, CharacterSelectScene, GameScene, VictoryScene, GameOverScene],
+                    callbacks: {
+                        preBoot: function(game) {
+                            // Register GameManager BEFORE any scene boots
+                            console.log('PreBoot: Registering GameManager');
+                            game.registry.set('gameManager', gameManager);
+                        }
+                    }
                 };
                 
                 const game = new Phaser.Game(config);
-                
-                // Register GameManager globally for all scenes
-                game.registry.set('gameManager', gameManager);
                 
                 console.log('Game created successfully!');
                 document.getElementById('debug').innerHTML += '<br>Game running! Check the game area below.';

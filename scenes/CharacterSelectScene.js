@@ -273,7 +273,7 @@ class CharacterSelectScene extends Phaser.Scene {
         
         if (success) {
             console.log(`Character selected: ${selectedCharacter.name}`);
-            this.sound.play('characterSelect', { volume: 0.7 }).catch(() => {});
+            // Audio removed
             
             this.showConfirmation(`${selectedCharacter.name} selected!`);
             
@@ -292,7 +292,7 @@ class CharacterSelectScene extends Phaser.Scene {
 
     goBack() {
         console.log('Returning to start screen...');
-        this.sound.play('buttonClick', { volume: 0.5 }).catch(() => {});
+        // Audio removed
         
         this.cameras.main.fade(250, 0, 17, 34);
         
