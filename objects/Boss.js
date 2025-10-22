@@ -1,12 +1,13 @@
 class Boss {
-    constructor(scene, startingHP) {
+    constructor(scene, startingHP, bustNumber = 21, stayNumber = 17) {
         this.scene = scene;
         this.hp = startingHP;
         this.maxHP = startingHP;
         this.hand = [];
         this.currentBet = 15;
-        this.name = "Iron Mike";
-        // Create blackjack logic instance for this boss
+        this.name = "Boss";
+        this.bustNumber = bustNumber; // Custom bust threshold!
+        this.stayNumber = stayNumber; // When boss stops hitting
         this.blackjackLogic = new BlackjackLogic();
     }
 
@@ -24,6 +25,11 @@ class Boss {
 
     shouldHit() {
         const handValue = this.blackjackLogic.calculateHandValue(this.hand);
-        return handValue < 17;
+        return handValue < this.stayNumber; // Use stay number instead!
+    }
+    
+    isBust() {
+        const handValue = this.blackjackLogic.calculateHandValue(this.hand);
+        return handValue > this.bustNumber; // Custom bust check!
     }
 }

@@ -97,7 +97,13 @@
                                                         console.log('VictoryScene loaded');
                                                         loadScript('scenes/GameOverScene.js', function() {
                                                             console.log('GameOverScene loaded');
-                                                            startGame();
+                                                            loadScript('scenes/IntermissionScene.js', function() {
+                                                                console.log('IntermissionScene loaded');
+                                                                loadScript('scenes/RunCompleteScene.js', function() {
+                                                                    console.log('RunCompleteScene loaded');
+                                                                    startGame();
+                                                                });
+                                                            });
                                                         });
                                                     });
                                                 });
@@ -127,7 +133,7 @@
                     height: 768,
                     parent: 'game-container',
                     backgroundColor: '#001122',
-                    scene: [BootScene, StartScene, CharacterSelectScene, GameScene, VictoryScene, GameOverScene],
+                    scene: [BootScene, StartScene, CharacterSelectScene, GameScene, IntermissionScene, RunCompleteScene, VictoryScene, GameOverScene],
                     callbacks: {
                         preBoot: function(game) {
                             // Register GameManager BEFORE any scene boots

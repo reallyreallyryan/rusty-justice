@@ -1,17 +1,19 @@
-# Rusty Justice - Blackjack Roguelike MVP
+# Rusty Justice - Cyber-Western Blackjack Roguelike
 
 ## 🎮 Game Overview
 
-Rusty Justice is a fast-paced, single-player blackjack-inspired roguelike where chips are your health and every bet could be your last. Face off against AI bosses in high-stakes blackjack battles with a cyber-western twist.
+Rusty Justice is a fast-paced, single-player blackjack roguelike where chips are your health and every bet could be your last. Battle through 6 unique AI bosses in high-stakes card games with a custom cyber-western deck and progressive betting system.
 
-### Current Features (MVP V1)
-- ✅ Full blackjack mechanics (hit, stay, bust logic)
-- ✅ HP system tied to betting chips
-- ✅ AI boss with configurable behavior (hits on <17)
-- ✅ Damage system based on winning bets
-- ✅ **NEW: Sidearm mechanic** - One-time use bonus card per round
-- ✅ Win/lose conditions
-- ✅ Retro-futuristic UI with green terminal aesthetic
+### Current Features (Full Release Candidate)
+- ✅ **Complete 6-boss campaign** with unique abilities and behaviors
+- ✅ **Custom cyber-western deck** with ⚙☀⚡💀 suits and 0-10 ranks
+- ✅ **Progressive betting system** (minimum bet = round number)
+- ✅ **Dynamic boss mechanics** with varied stay/bust thresholds
+- ✅ **Sidearm system** - One-time use bonus card per round
+- ✅ **All-in mechanics** for low-chip strategic play
+- ✅ **Enhanced damage system** (bust = both bets as damage)
+- ✅ **Scene progression** with intermission and victory screens
+- ✅ **Retro cyber-western UI** with terminal aesthetic
 
 ## 🚀 Quick Start
 
@@ -26,96 +28,191 @@ Rusty Justice is a fast-paced, single-player blackjack-inspired roguelike where 
    python3 -m http.server 8001
    ```
 3. Open browser to `http://localhost:8001`
-4. Click "DEAL" to start playing!
+4. Select character and start your run!
 
 ## 🎯 How to Play
 
 ### Basic Rules
-1. **Betting = Life**: Your chips are your HP. Bet wisely!
-2. **Deal**: Start each round by placing a bet (5-100 chips)
-3. **Player Turn**: Choose:
-   - **HIT**: Draw from deck
-   - **USE SIDEARM**: Use your one-time bonus card (NEW!)
-   - **STAY**: End your turn
-4. **Boss Turn**: AI automatically plays (hits on <17)
-5. **Damage**: Winner deals damage equal to their bet
-6. **Bust Penalty**: Busting costs your bet + 10 extra damage
-7. **Victory**: Reduce boss HP to 0 to win!
+1. **Chips = Life**: Your chips are your HP. Bet wisely!
+2. **Progressive Betting**: Minimum bet equals round number (Round 5 = min 5 chips)
+3. **Custom Deck**: 44 cards with ranks 0-10 in four cyber-western suits
+4. **Boss Campaign**: Fight through 6 unique bosses to win
 
-### Sidearm Mechanic (NEW!)
-- Each round, you get a face-up "Sidearm" card
-- Use it once per round instead of hitting from deck
-- Strategic option when you need a specific card value
-- Resets each round with a new card
+### The Deck System
+**Suits & Colors:**
+- ⚙ **Green (Gear)** - Tech/machinery theme
+- ☀ **Orange (Sun)** - Desert wasteland theme  
+- ⚡ **Purple (Lightning)** - Cyber power theme
+- 💀 **Black (Skull)** - Death/wasteland theme
+
+**Card Values:**
+- **0-10**: Simple numeric values (no Aces, no face cards)
+- **Zero cards**: Can't bust with them - strategic tools!
+- **44 total cards** (11 per suit)
+
+### Betting System
+- **Round 1**: Bet 1-6 chips
+- **Round 3**: Bet 3-6 chips  
+- **Round 5**: Bet 5-6 chips
+- **Low chips**: Must go all-in if chips < round number
+- **Boss bets**: Always equal to round number
+
+### Combat Mechanics
+1. **Player Turn**: Hit, Stay, or Use Sidearm
+2. **Boss Turn**: AI plays based on unique stay numbers
+3. **Damage**: Winner deals damage equal to their bet
+4. **Bust Penalty**: Take damage from BOTH bets (yours + opponent's)
+5. **Victory**: Reduce boss HP to 0
+
+### Sidearm System
+- Each round you get a face-up "Sidearm" card
+- Use once per round instead of hitting from deck
+- Strategic option when you need specific values
+- Resets each round with new card
+
+## 👾 Boss Campaign
+
+Fight through 6 unique bosses, each with different abilities:
+
+1. **Slugjaw** (21 HP)
+   - *Desert Mirage*: Force player to discard highest card
+   - Stays at 17, busts at 21
+
+2. **Circuit Saint** (21 HP)  
+   - *Surge*: Can reach 22 without busting
+   - Stays at 18, busts at 22
+
+3. **Pit King** (21 HP)
+   - *Gladiator's Gambit*: Double damage on natural 21
+   - Stays at 19, busts at 23
+
+4. **Queen Scylla** (21 HP)
+   - *Swarm*: Draws 2 cards at start  
+   - Stays at 17, busts at 22
+
+5. **The Proxy** (21 HP)
+   - *Mirror*: Copies player's last action
+   - Stays at 16, busts at 21
+
+6. **SLUG PRIME** (21 HP)
+   - *Override*: Can change one card value by ±1
+   - Stays at 20, busts at 24
 
 ## 📁 Project Structure
 ```
 /rusty-justice/
-├── index.html          # Main game file with debugging
-├── test-simple.html    # Phaser CDN test file
-├── main.js            # Game configuration
+├── index.html              # Main game entry point
+├── main.js                 # Phaser game configuration
 ├── /scenes/
-│   ├── BootScene.js   # Initialization scene
-│   └── GameScene.js   # Main game logic
+│   ├── BootScene.js        # Game initialization
+│   ├── StartScene.js       # Main menu
+│   ├── CharacterSelectScene.js # Character selection
+│   ├── GameScene.js        # Core blackjack gameplay
+│   ├── IntermissionScene.js # Between-boss progression
+│   ├── RunCompleteScene.js # Victory celebration
+│   └── GameOverScene.js    # Defeat screen
+├── /managers/
+│   ├── GameManager.js      # Boss progression & game state
+│   └── BattleManager.js    # Battle mechanics & round logic
 ├── /objects/
-│   ├── Player.js      # Player class with sidearm support
-│   ├── Boss.js        # AI boss class
-│   └── Deck.js        # Card deck management
+│   ├── Player.js           # Player with sidearm system
+│   ├── Boss.js             # AI boss with custom behaviors
+│   └── Deck.js             # Custom cyber-western deck
 └── /utils/
-    └── BlackjackLogic.js  # Blackjack rules engine
+    └── BlackjackLogic.js   # Core card game rules
 ```
 
-## 📋 Today's Progress Summary
+## 🎨 Visual Style & Future Enhancements
 
-### What We Accomplished
-1. **Built Complete MVP from Scratch**
-   - Set up Phaser 3 game engine
-   - Created full project structure
-   - Implemented all core blackjack mechanics
-   - Added betting and damage systems
-   - Created retro-cyber UI
+### Current Aesthetic
+- Cyber-western terminal theme
+- Green matrix colors (#00ff41)
+- Retro monospace fonts (Courier New)
+- Functional button-based UI
 
-2. **Fixed Critical Issues**
-   - Resolved blank screen bug (script loading order)
-   - Added comprehensive error handling
-   - Fixed Phaser initialization sequence
-   - Added debug output for troubleshooting
+### Sprite Implementation Roadmap
+To upgrade to professional card game visuals:
 
-3. **Implemented Sidearm Feature**
-   - Extended Player class with sidearm properties
-   - Added yellow "USE SIDEARM" button to UI
-   - Created sidearm display showing card and status
-   - Integrated sidearm logic with game flow
+1. **Card Sprites**: Create 44 individual card images with cyber-western designs
+2. **Animation System**: Card dealing, flipping, and effect animations  
+3. **Table Layout**: Green felt background with defined card areas
+4. **UI Polish**: Replace text buttons with styled graphics
+5. **Boss Themes**: Unique visual styles per boss encounter
 
-### Technical Improvements Made
-- Dynamic script loading to ensure proper initialization order
-- Debug panel for real-time loading feedback
-- Proper button state management
-- Clean separation of concerns (objects, scenes, utils)
+**Technical Approach for Sprites:**
+```javascript
+// Load card assets
+this.load.image('card_5_gear', 'assets/cards/card_5_gear.png');
 
-## 🔮 Future Enhancements (Post-MVP)
+// Create card sprite instead of text
+const cardSprite = this.add.image(x, y, 'card_5_gear');
+cardSprite.setScale(0.8);
 
-From the original brief, these features are planned:
-- Multiple boss encounters (6 unique bosses)
-- Status effects and skill cards
-- Advanced animations and effects
-- Audio and music
-- Mobile-responsive UI
-- Save/load functionality
-- Multiplayer support
+// Add animations
+this.tweens.add({
+    targets: cardSprite,
+    x: finalX,
+    y: finalY,
+    duration: 500,
+    ease: 'Power2'
+});
+```
+
+## 🎨 Card Sprite System (Implemented!)
+
+### Current Implementation
+- ✅ **Hybrid card display**: Cards show as sprites when available, text fallback otherwise
+- ✅ **Smart positioning**: Player cards at bottom, boss cards at top, centered spread
+- ✅ **Automatic detection**: System checks for sprite availability per card
+- ✅ **Proper scaling**: Cards sized appropriately for gameplay (0.25 scale)
+
+### Cards Currently Available as Sprites
+- **💀 Black/Skull suit**: Complete set (0-10) - 11 cards
+- **⚙ Green/Gear suit**: Partial set (0, 1, 10) - 3 cards  
+- **☀ Orange/Sun suit**: Coming soon
+- **⚡ Purple/Lightning suit**: Coming soon
+
+### Adding New Card Sprites
+1. Create PNG files following naming convention: `black5.png`, `green7.png`, etc.
+2. Place in `/assets/cards/` directory
+3. Add to preload function in `scenes/GameScene.js`
+4. Cards automatically appear as sprites when dealt
+
+### Technical Implementation
+- **Preload system**: Hardcoded loading of existing cards
+- **Fallback system**: Text display for cards without sprites
+- **Position calculation**: Dynamic centering and spreading
+- **Memory management**: Sprites destroyed and recreated each hand
+
+## 🔮 Completed Features
+
+### Major Systems Implemented
+- ✅ Complete boss progression campaign (6 bosses)
+- ✅ Custom deck with cyber-western themes  
+- ✅ Progressive betting with all-in mechanics
+- ✅ Enhanced damage system for strategic depth
+- ✅ Scene flow with intermissions and victory
+- ✅ Boss abilities framework (ready for implementation)
+- ✅ Round-based progression tracking
+- ✅ Card sprite system with hybrid display
+
+### Technical Achievements  
+- ✅ Modular architecture with clean separation
+- ✅ Dynamic script loading with error handling
+- ✅ Comprehensive game state management
+- ✅ Extensible boss and card systems
+- ✅ Professional code organization
 
 ## 🐛 Known Issues
-- None currently! Game is fully playable.
+- Debug logging active in betting system (for tuning)
+- 33 cards still need sprite artwork (14 implemented, 30 remaining)
 
-## 🎨 Visual Style
-- Cyber-western aesthetic
-- Green terminal colors (#00ff41)
-- Retro monospace fonts (Courier New)
-- Minimal, functional UI design
+## 🎯 Current Status
 
----
-
-**Version**: MVP V1  
+**Version**: Release Candidate 1.1  
 **Engine**: Phaser 3.70.0  
-**Last Updated**: Today  
-**Status**: Fully Playable with Sidearm Mechanic!
+**Completeness**: Fully playable campaign with partial sprite system  
+**Next Phase**: Complete card sprite artwork (30 cards remaining)  
+**Sprite System**: ✅ Implemented and working
+
+Rusty Justice has evolved from MVP to a complete cyber-western blackjack roguelike with unique mechanics, progressive difficulty, and a full boss campaign. The foundation is solid for visual enhancements and additional content!

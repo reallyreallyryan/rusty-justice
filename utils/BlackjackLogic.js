@@ -1,22 +1,10 @@
 class BlackjackLogic {
     calculateHandValue(hand) {
         let value = 0;
-        let aces = 0;
 
         for (let card of hand) {
-            if (card.rank === 'A') {
-                aces++;
-                value += 11;
-            } else if (['J', 'Q', 'K'].includes(card.rank)) {
-                value += 10;
-            } else {
-                value += parseInt(card.rank);
-            }
-        }
-
-        while (value > 21 && aces > 0) {
-            value -= 10;
-            aces--;
+            // All cards are now simple numeric values 0-10
+            value += parseInt(card.rank);
         }
 
         return value;

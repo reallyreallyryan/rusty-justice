@@ -3,9 +3,35 @@ class GameScene extends Phaser.Scene {
         super({ key: 'GameScene' });
     }
 
+    preload() {
+        console.log('Loading your existing card sprites...');
+        
+        // Black/Skull suit (complete set)
+        for (let i = 0; i <= 10; i++) {
+            this.load.image(`card_${i}_skull`, `assets/cards/black${i}.png`);
+        }
+        
+        // Green/Gear suit (partial set)
+        this.load.image('card_0_gear', 'assets/cards/green0.png');
+        this.load.image('card_1_gear', 'assets/cards/green1.png');
+        this.load.image('card_10_gear', 'assets/cards/green10.png');
+        
+        // Debug successful loads
+        this.load.on('filecomplete', (key) => {
+            if (key.startsWith('card_')) {
+                console.log(`✅ Loaded card sprite: ${key}`);
+            }
+        });
+        
+        this.load.on('loaderror', (file) => {
+            console.error('❌ Failed to load card:', file.src);
+        });
+    }
+
     create() {
         this.cameras.main.setBackgroundColor('#001122');
         this.cameras.main.fadeIn(250, 0, 17, 34);
+        
         
         this.gameManager = this.registry.get('gameManager');
         this.battleManager = new BattleManager(this, this.gameManager);
@@ -74,6 +100,13 @@ class GameScene extends Phaser.Scene {
         this.bossHPText = this.add.text(120, 130, `${boss.name} HP: ${boss.hp}`, {
             fontSize: '16px',
             fill: '#00ff41',
+            fontFamily: 'Courier New'
+        });
+
+        // NEW: Show bust number!
+        this.bossBustText = this.add.text(120, 150, `Busts at: ${boss.bustNumber}`, {
+            fontSize: '14px',
+            fill: '#ff4444',
             fontFamily: 'Courier New'
         });
 
@@ -165,7 +198,7 @@ class GameScene extends Phaser.Scene {
         }).setOrigin(0.5);
         this.betContainer.add(this.betLabel);
 
-        this.betAmountText = this.add.text(0, 0, '10', {
+        this.betAmountText = this.add.text(0, 0, '1', {
             fontSize: '20px',
             fill: '#ffff00',
             fontFamily: 'Courier New'
@@ -214,7 +247,7 @@ class GameScene extends Phaser.Scene {
     }
 
     createBettingControls() {
-        this.betUpButton = this.add.text(300, 630, '+5', {
+        this.betUpButton = this.add.text(300, 630, '+1', {
             fontSize: '14px',
             fill: '#00ff41',
             fontFamily: 'Courier New',
@@ -224,7 +257,7 @@ class GameScene extends Phaser.Scene {
             .setOrigin(0.5)
             .setInteractive({ useHandCursor: true });
 
-        this.betDownButton = this.add.text(300, 670, '-5', {
+        this.betDownButton = this.add.text(300, 670, '-1', {
             fontSize: '14px',
             fill: '#00ff41',
             fontFamily: 'Courier New',
@@ -234,8 +267,8 @@ class GameScene extends Phaser.Scene {
             .setOrigin(0.5)
             .setInteractive({ useHandCursor: true });
 
-        this.betUpButton.on('pointerdown', () => this.adjustBet(5));
-        this.betDownButton.on('pointerdown', () => this.adjustBet(-5));
+        this.betUpButton.on('pointerdown', () => this.adjustBet(1));
+        this.betDownButton.on('pointerdown', () => this.adjustBet(-1));
     }
 
     createStatusDisplay() {
@@ -309,8 +342,15 @@ class GameScene extends Phaser.Scene {
         this.battleManager.on('readyForNewRound', () => {
             this.time.delayedCall(2000, () => {
                 this.battleManager.startNewRound();
+                
+                // Set bet to minimum for next round
+                const nextRoundMin = Math.max(1, this.battleManager.roundNumber + 1);
+                const playerHP = this.battleManager.getPlayer().hp;
+                const nextBet = Math.min(nextRoundMin, playerHP);
+                this.battleManager.currentBet = nextBet;
+                this.updateBetDisplay(nextBet);
+                
                 this.updateButtonStates();
-                this.updateMessage('Place your bet for the next round!');
             });
         });
     }
@@ -342,28 +382,81 @@ class GameScene extends Phaser.Scene {
     adjustBet(amount) {
         if (this.battleManager.getBattleState() !== 'betting') return;
         
-        const newBet = Phaser.Math.Clamp(
-            this.battleManager.getCurrentBet() + amount,
-            this.battleManager.getMinBet(),
-            this.battleManager.getMaxBet()
-        );
+        const currentBet = this.battleManager.getCurrentBet();
+        const minBet = this.battleManager.getMinBet();
+        const maxBet = this.battleManager.getMaxBet();
+        
+        console.log('Before adjust - Current:', currentBet, 'Min:', minBet, 'Max:', maxBet, 'Amount:', amount);
+        
+        // Calculate new bet
+        let newBet = currentBet + amount;
+        
+        // Clamp to valid range
+        newBet = Phaser.Math.Clamp(newBet, minBet, maxBet);
+        
+        console.log('After clamp - New bet:', newBet);
         
         this.battleManager.currentBet = newBet;
         this.updateBetDisplay(newBet);
+        
+        // Show betting constraints
+        const roundNum = this.battleManager.roundNumber + 1; // +1 because round increments on bet
+        this.updateMessage(`Round ${roundNum}: Bet ${minBet}-${maxBet} chips`);
     }
 
     updateHandDisplays() {
         const player = this.battleManager.getPlayer();
         const boss = this.battleManager.getBoss();
         
-        this.playerHandText.setText(this.formatHand(player.hand));
+        // Update text displays (hybrid system)
+        this.playerHandText.setText(this.formatHandWithSprites(player.hand));
         this.playerValueText.setText(`Value: ${this.battleManager.getPlayerHandValue()}`);
         
-        this.bossHandText.setText(this.formatHand(boss.hand));
+        this.bossHandText.setText(this.formatHandWithSprites(boss.hand));
         this.bossValueText.setText(`Value: ${this.battleManager.getBossHandValue()}`);
         
         this.playerHPText.setText(`HP: ${player.hp}`);
         this.bossHPText.setText(`${boss.name} HP: ${boss.hp}`);
+        
+        // Display card sprites (for testing)
+        this.displayCardSprites(player.hand, 'player');
+        this.displayCardSprites(boss.hand, 'boss');
+    }
+    
+    formatHandWithSprites(hand) {
+        return hand.map(card => {
+            if (this.hasCardSprite(card)) {
+                return `[${card.rank}${card.suit}]`; // Mark cards with sprites
+            } else {
+                return `${card.rank}${card.suit}`;
+            }
+        }).join(' ');
+    }
+    
+    displayCardSprites(hand, owner) {
+        // Clear existing sprites for this hand
+        if (this[`${owner}CardSprites`]) {
+            this[`${owner}CardSprites`].forEach(sprite => sprite.destroy());
+        }
+        this[`${owner}CardSprites`] = [];
+        
+        // Create sprites for cards that have them
+        hand.forEach((card, index) => {
+            if (this.hasCardSprite(card)) {
+                const imageKey = this.getCardImageKey(card);
+                const baseX = owner === 'player' ? 400 : 400;  // Center horizontally
+                const baseY = owner === 'player' ? 580 : 120;  // Player bottom, boss top
+                const offsetX = (index - (hand.length - 1) / 2) * 60; // Center spread
+                
+                const cardSprite = this.add.image(baseX + offsetX, baseY, imageKey);
+                cardSprite.setScale(0.25); // Much smaller cards
+                cardSprite.setDepth(2); // Above other UI elements
+                
+                this[`${owner}CardSprites`].push(cardSprite);
+                
+                console.log(`Displayed sprite for ${card.rank}${card.suit} at ${baseX + offsetX}, ${baseY} (scale: 0.25)`);
+            }
+        });
     }
 
     updateSidearmDisplay() {
@@ -389,6 +482,20 @@ class GameScene extends Phaser.Scene {
         
         this.betUpButton.setVisible(battleState === 'betting');
         this.betDownButton.setVisible(battleState === 'betting');
+        
+        // Show betting constraints when in betting phase
+        if (battleState === 'betting') {
+            const roundNum = this.battleManager.roundNumber + 1;
+            const minBet = this.battleManager.getMinBet();
+            const maxBet = this.battleManager.getMaxBet();
+            const player = this.battleManager.getPlayer();
+            
+            if (player.hp < roundNum) {
+                this.updateMessage(`Round ${roundNum}: Must go ALL-IN with ${player.hp} chips!`);
+            } else {
+                this.updateMessage(`Round ${roundNum}: Bet ${minBet}-${maxBet} chips`);
+            }
+        }
     }
 
     handleRoundResult(result) {
@@ -425,5 +532,31 @@ class GameScene extends Phaser.Scene {
 
     formatHand(hand) {
         return hand.map(card => `${card.rank}${card.suit}`).join(' ');
+    }
+    
+    // Helper method to get card color for future sprite system
+    getCardColor(card) {
+        return card.color || '#ffffff';
+    }
+    
+    // Map card object to sprite image key
+    getCardImageKey(card) {
+        const suitNames = {
+            '💀': 'skull',  // black cards
+            '⚙': 'gear',   // green cards  
+            '☀': 'sun',    // orange cards
+            '⚡': 'bolt'   // purple cards
+        };
+        const key = `card_${card.rank}_${suitNames[card.suit]}`;
+        console.log(`Generated key for ${card.rank}${card.suit}: ${key}`);
+        return key;
+    }
+    
+    // Check if sprite exists for this card
+    hasCardSprite(card) {
+        const imageKey = this.getCardImageKey(card);
+        const exists = this.textures.exists(imageKey);
+        console.log(`Checking sprite ${imageKey}: ${exists ? '✅ exists' : '❌ missing'}`);
+        return exists;
     }
 }

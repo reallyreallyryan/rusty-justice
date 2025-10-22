@@ -6,9 +6,10 @@ class BattleManager {
         this.deck = new Deck();
         
         this.battleState = 'inactive';
-        this.currentBet = 10;
-        this.minBet = 5;
-        this.maxBet = 100;
+        this.currentBet = 1;
+        this.minBet = 1;
+        this.maxBet = 6;
+        this.roundNumber = 0; // Track current round
         
         this.player = null;
         this.boss = null;
@@ -25,20 +26,37 @@ class BattleManager {
         this.player = new Player(this.scene, playerData.hp);
         
         if (battleData.currentBoss) {
-            this.boss = new Boss(this.scene, battleData.currentBoss.hp);
+            // Create boss with custom bust number!
+            this.boss = new Boss(
+                this.scene, 
+                battleData.currentBoss.hp,
+                battleData.currentBoss.bustNumber, // Pass bust number!
+                battleData.currentBoss.stayNumber  // Pass stay number!
+            );
             this.boss.name = battleData.currentBoss.name;
-            this.boss.currentBet = battleData.currentBoss.baseBet;
+            this.boss.currentBet = 1; // Start at 1 chip for round 1
         } else {
-            this.gameManager.startBattle('iron_mike');
-            this.boss = new Boss(this.scene, this.gameManager.getBattleData().currentBoss.hp);
+            this.gameManager.startRun();
+            const bossData = this.gameManager.getBattleData().currentBoss;
+            this.boss = new Boss(
+                this.scene, 
+                bossData.hp,
+                bossData.bustNumber,
+                bossData.stayNumber
+            );
+            this.boss.name = bossData.name;
+            this.boss.currentBet = 1; // Start at 1 chip for round 1
         }
         
-        this.currentBet = battleData.currentBet || 10;
+        this.currentBet = battleData.currentBet || 1;
         this.battleState = 'betting';
+        this.roundNumber = 0; // Reset round counter for new battle
         
         console.log('Battle initialized:', {
             playerHP: this.player.hp,
             bossHP: this.boss.hp,
+            bossName: this.boss.name,
+            bustNumber: this.boss.bustNumber, // NEW!
             currentBet: this.currentBet
         });
     }
@@ -62,15 +80,31 @@ class BattleManager {
             return false;
         }
         
-        if (amount < this.minBet || amount > this.maxBet) {
-            console.warn('Bet amount out of range:', amount);
-            return false;
+        // Increment round at the start of each new round
+        this.roundNumber++;
+        
+        // Calculate dynamic min bet based on round
+        const dynamicMinBet = this.roundNumber;
+        
+        // If player has fewer chips than round number, must go all-in
+        if (this.player.hp < dynamicMinBet) {
+            amount = this.player.hp; // Force all-in
+            console.log(`Round ${this.roundNumber}: Player forced all-in with ${amount} chips`);
+        } else {
+            // Normal betting validation
+            if (amount < dynamicMinBet || amount > this.maxBet) {
+                console.warn(`Bet must be between ${dynamicMinBet} and ${this.maxBet}, got:`, amount);
+                return false;
+            }
+            
+            if (amount > this.player.hp) {
+                console.warn('Cannot bet more than current HP');
+                return false;
+            }
         }
         
-        if (amount > this.player.hp) {
-            console.warn('Cannot bet more than current HP');
-            return false;
-        }
+        // Update boss bet based on round number
+        this.boss.currentBet = this.roundNumber;
         
         this.currentBet = amount;
         this.battleState = 'dealing';
@@ -156,7 +190,7 @@ class BattleManager {
             this.boss.addCard(card);
             this.eventBus.emit('bossHit', card);
             
-            if (this.blackjackLogic.isBust(this.boss.hand)) {
+            if (this.boss.isBust()) { // Use boss's custom bust check!
                 break;
             }
         }
@@ -170,7 +204,7 @@ class BattleManager {
         const bossValue = this.blackjackLogic.calculateHandValue(this.boss.hand);
         
         const playerBust = this.blackjackLogic.isBust(this.player.hand);
-        const bossBust = this.blackjackLogic.isBust(this.boss.hand);
+        const bossBust = this.boss.isBust(); // Use boss's custom bust check!
         
         let result = 'tie';
         let playerDamage = 0;
@@ -178,12 +212,15 @@ class BattleManager {
         
         if (playerBust && bossBust) {
             result = 'tie';
+            // Both bust - each takes damage from both bets
+            playerDamage = this.currentBet + this.boss.currentBet;
+            bossDamage = this.boss.currentBet + this.currentBet;
         } else if (playerBust) {
             result = 'bossWin';
-            playerDamage = this.currentBet + 10;
+            playerDamage = this.currentBet + this.boss.currentBet; // Player takes both bets as damage
         } else if (bossBust) {
             result = 'playerWin';
-            bossDamage = this.currentBet;
+            bossDamage = this.boss.currentBet + this.currentBet; // Boss takes both bets as damage
         } else {
             const comparison = this.blackjackLogic.compareHands(this.player.hand, this.boss.hand);
             if (comparison > 0) {
@@ -191,7 +228,7 @@ class BattleManager {
                 bossDamage = this.currentBet;
             } else if (comparison < 0) {
                 result = 'bossWin';
-                playerDamage = this.currentBet;
+                playerDamage = this.boss.currentBet;
             } else {
                 result = 'tie';
             }
@@ -253,7 +290,12 @@ class BattleManager {
         
         setTimeout(() => {
             if (result === 'victory') {
-                this.scene.scene.start('VictoryScene');
+                // Check if run is complete
+                if (this.gameManager.isRunComplete()) {
+                    this.scene.scene.start('RunCompleteScene');
+                } else {
+                    this.scene.scene.start('IntermissionScene');
+                }
             } else {
                 this.scene.scene.start('GameOverScene');
             }
@@ -277,7 +319,9 @@ class BattleManager {
     }
     
     getMinBet() {
-        return this.minBet;
+        // Dynamic min bet based on round, but can go all-in if chips are lower
+        const roundMinBet = Math.max(1, this.roundNumber);
+        return Math.min(roundMinBet, this.player.hp);
     }
     
     getMaxBet() {
@@ -297,7 +341,7 @@ class BattleManager {
     }
     
     isBossBust() {
-        return this.blackjackLogic.isBust(this.boss.hand);
+        return this.boss.isBust(); // Use boss's custom check
     }
     
     canPlayerUseSidearm() {
@@ -305,7 +349,7 @@ class BattleManager {
     }
     
     logHandValues() {
-        console.log(`Player hand value: ${this.getPlayerHandValue()}, Boss hand value: ${this.getBossHandValue()}`);
+        console.log(`Player: ${this.getPlayerHandValue()}, Boss: ${this.getBossHandValue()} (busts at ${this.boss.bustNumber})`);
     }
     
     on(event, callback) {
