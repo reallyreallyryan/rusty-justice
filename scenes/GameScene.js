@@ -11,20 +11,41 @@ class GameScene extends Phaser.Scene {
             this.load.image(`card_${i}_skull`, `assets/cards/black${i}.png`);
         }
         
-        // Green/Gear suit (partial set)
-        this.load.image('card_0_gear', 'assets/cards/green0.png');
-        this.load.image('card_1_gear', 'assets/cards/green1.png');
-        this.load.image('card_10_gear', 'assets/cards/green10.png');
+        // Green/Gear suit (complete set)
+        for (let i = 0; i <= 10; i++) {
+            this.load.image(`card_${i}_gear`, `assets/cards/green${i}.png`);
+        }
+        
+        // Orange/Sun suit (complete set)
+        for (let i = 0; i <= 10; i++) {
+            this.load.image(`card_${i}_sun`, `assets/cards/orange${i}.png`);
+        }
+        
+        // Purple/Bolt suit (complete set)
+        for (let i = 0; i <= 10; i++) {
+            this.load.image(`card_${i}_bolt`, `assets/cards/purple${i}.png`);
+        }
+        
+        // Character cards
+        this.load.image('character_rusty', 'assets/cards/bangbang.jpeg');
+        
+        // Boss cards - each boss has their unique card asset
+        this.load.image('boss_nasa', 'assets/cards/nasa-gamecrafter.jpg');
+        this.load.image('boss_scuzz_bucket', 'assets/cards/scuzz-bucket.jpeg');
+        this.load.image('boss_pistol_plink', 'assets/cards/pistol-plink.jpeg');
+        this.load.image('boss_piglet', 'assets/cards/piglet.jpeg');
+        this.load.image('boss_null', 'assets/cards/null.jpeg');
+        this.load.image('boss_wheeze', 'assets/cards/wheeze.jpeg');
         
         // Debug successful loads
         this.load.on('filecomplete', (key) => {
-            if (key.startsWith('card_')) {
-                console.log(`✅ Loaded card sprite: ${key}`);
+            if (key.startsWith('card_') || key.startsWith('character_') || key.startsWith('boss_')) {
+                console.log(`✅ Loaded sprite: ${key}`);
             }
         });
         
         this.load.on('loaderror', (file) => {
-            console.error('❌ Failed to load card:', file.src);
+            console.error('❌ Failed to load:', file.src);
         });
     }
 
@@ -90,6 +111,10 @@ class GameScene extends Phaser.Scene {
 
     createBossArea() {
         this.add.rectangle(512, 200, 800, 180, 0x002200).setStrokeStyle(2, 0x00ff41);
+        
+        // Semi-transparent background for card area
+        this.add.rectangle(512, 180, 700, 80, 0x000000, 0.5);
+        
         this.add.text(512, 120, 'BOSS TABLE', {
             fontSize: '16px',
             fill: '#00ff41',
@@ -97,14 +122,18 @@ class GameScene extends Phaser.Scene {
         }).setOrigin(0.5);
 
         const boss = this.battleManager.getBoss();
-        this.bossHPText = this.add.text(120, 130, `${boss.name} HP: ${boss.hp}`, {
+        
+        // Boss character card display
+        this.createBossCharacterCard();
+        
+        this.bossHPText = this.add.text(250, 140, `${boss.name} HP: ${boss.hp}`, {
             fontSize: '16px',
             fill: '#00ff41',
             fontFamily: 'Courier New'
         });
 
         // NEW: Show bust number!
-        this.bossBustText = this.add.text(120, 150, `Busts at: ${boss.bustNumber}`, {
+        this.bossBustText = this.add.text(250, 160, `Busts at: ${boss.bustNumber}`, {
             fontSize: '14px',
             fill: '#ff4444',
             fontFamily: 'Courier New'
@@ -117,10 +146,16 @@ class GameScene extends Phaser.Scene {
             align: 'center'
         }).setOrigin(0.5);
 
-        this.bossValueText = this.add.text(512, 180, '', {
-            fontSize: '18px',
+        // Boss score on the right side with background
+        this.bossScoreBg = this.add.rectangle(850, 150, 120, 50, 0x000000, 0.7);
+        this.bossScoreBg.setStrokeStyle(2, 0x00ff41);
+        
+        this.bossValueText = this.add.text(850, 150, '', {
+            fontSize: '24px',
             fill: '#00ff41',
-            fontFamily: 'Courier New'
+            fontFamily: 'Courier New',
+            stroke: '#000000',
+            strokeThickness: 2
         }).setOrigin(0.5);
 
         this.bossCardsContainer = this.add.container(512, 220);
@@ -128,6 +163,10 @@ class GameScene extends Phaser.Scene {
 
     createPlayerArea() {
         this.add.rectangle(512, 480, 800, 180, 0x220000).setStrokeStyle(2, 0x00ff41);
+        
+        // Semi-transparent background for card area
+        this.add.rectangle(512, 520, 700, 80, 0x000000, 0.5);
+        
         this.add.text(512, 400, 'PLAYER TABLE', {
             fontSize: '16px',
             fill: '#00ff41',
@@ -135,6 +174,10 @@ class GameScene extends Phaser.Scene {
         }).setOrigin(0.5);
 
         const player = this.battleManager.getPlayer();
+        
+        // Player character card display
+        this.createPlayerCharacterCard();
+        
         this.playerHPText = this.add.text(120, 410, `HP: ${player.hp}`, {
             fontSize: '16px',
             fill: '#00ff41',
@@ -148,10 +191,16 @@ class GameScene extends Phaser.Scene {
             align: 'center'
         }).setOrigin(0.5);
 
-        this.playerValueText = this.add.text(512, 460, '', {
-            fontSize: '18px',
+        // Player score on the right side with background
+        this.playerScoreBg = this.add.rectangle(850, 540, 120, 50, 0x000000, 0.7);
+        this.playerScoreBg.setStrokeStyle(2, 0x00ff41);
+        
+        this.playerValueText = this.add.text(850, 540, '', {
+            fontSize: '24px',
             fill: '#00ff41',
-            fontFamily: 'Courier New'
+            fontFamily: 'Courier New',
+            stroke: '#000000',
+            strokeThickness: 2
         }).setOrigin(0.5);
 
         this.playerCardsContainer = this.add.container(512, 500);
@@ -159,37 +208,106 @@ class GameScene extends Phaser.Scene {
         this.createSidearmDisplay();
     }
 
-    createSidearmDisplay() {
-        this.sidearmContainer = this.add.container(200, 520);
+    createBossCharacterCard() {
+        // Container for boss character card - positioned horizontally next to boss info
+        const cardX = 120;  // Positioned to the left to avoid overlapping boss HP text
+        const cardY = 150;  // Aligned horizontally with boss name and HP
         
-        const sidearmBg = this.add.rectangle(0, 0, 120, 80, 0x004400);
+        // Background for character card - wider for rotated horizontal card
+        const cardBg = this.add.rectangle(cardX, cardY, 140, 100, 0x220000, 0.8);
+        cardBg.setStrokeStyle(2, 0x00ff41);
+        
+        // Boss character card - map boss name to image key
+        const boss = this.battleManager.getBoss();
+        const bossCardMap = {
+            'NASA': 'boss_nasa',
+            'SCUZZ BUCKET': 'boss_scuzz_bucket',
+            'PISTOL PLINK': 'boss_pistol_plink',
+            'PIGLET': 'boss_piglet',
+            'NULL': 'boss_null',
+            'WHEEZE': 'boss_wheeze'
+        };
+        
+        const bossKey = bossCardMap[boss.name] || 'boss_nasa';
+        if (this.textures.exists(bossKey)) {
+            this.bossCharacterCard = this.add.image(cardX, cardY, bossKey);
+            this.bossCharacterCard.setScale(0.15); // Original scale size
+            this.bossCharacterCard.setRotation(Math.PI / 2); // Rotate 90 degrees clockwise
+            this.bossCharacterCard.setDepth(1);
+        }
+    }
+    
+    createPlayerCharacterCard() {
+        // Container for player character card
+        const cardX = 120;
+        const cardY = 520;
+        
+        // Background for character card
+        const cardBg = this.add.rectangle(cardX, cardY, 100, 140, 0x000022, 0.8);
+        cardBg.setStrokeStyle(2, 0x00ff41);
+        
+        // Player character card - get selected character data
+        const playerData = this.gameManager.getPlayerData();
+        const selectedCharacter = this.gameManager.getSelectedCharacter();
+        
+        const characterCardMap = {
+            'bang_bang': 'character_bang_bang',
+            'loco_motive': 'character_loco_motive',
+            'tre_boujie': 'character_tre_boujie',
+            'eight_mm': 'character_eight_mm',
+            'crankshaft': 'character_crankshaft',
+            'bashcan': 'character_bashcan'
+        };
+        
+        const characterKey = characterCardMap[selectedCharacter?.id] || 'character_rusty';
+        if (this.textures.exists(characterKey)) {
+            this.playerCharacterCard = this.add.image(cardX, cardY, characterKey);
+            this.playerCharacterCard.setScale(0.15); // Adjust scale to fit
+            this.playerCharacterCard.setDepth(1);
+        }
+        
+        // Character name - display selected character name
+        const characterName = selectedCharacter?.name || 'UNKNOWN';
+        this.add.text(cardX, cardY + 80, characterName, {
+            fontSize: '12px',
+            fill: '#00ff41',
+            fontFamily: 'Courier New',
+            stroke: '#000000',
+            strokeThickness: 1
+        }).setOrigin(0.5);
+    }
+    
+    createSidearmDisplay() {
+        this.sidearmContainer = this.add.container(850, 430);
+        
+        const sidearmBg = this.add.rectangle(0, 0, 140, 160, 0x004400, 0.8);
         sidearmBg.setStrokeStyle(2, 0x00ff41);
         this.sidearmContainer.add(sidearmBg);
 
-        this.sidearmTitle = this.add.text(0, -30, 'SIDEARM', {
-            fontSize: '12px',
+        this.sidearmTitle = this.add.text(0, -65, 'SIDEARM', {
+            fontSize: '14px',
             fill: '#00ff41',
-            fontFamily: 'Courier New'
+            fontFamily: 'Courier New',
+            stroke: '#000000',
+            strokeThickness: 2
         }).setOrigin(0.5);
         this.sidearmContainer.add(this.sidearmTitle);
 
-        this.sidearmCardText = this.add.text(0, 0, '', {
-            fontSize: '16px',
-            fill: '#ffff00',
-            fontFamily: 'Courier New'
-        }).setOrigin(0.5);
-        this.sidearmContainer.add(this.sidearmCardText);
+        // Placeholder for card sprite
+        this.sidearmCardSprite = null;
 
-        this.sidearmStatusText = this.add.text(0, 25, '', {
-            fontSize: '10px',
+        this.sidearmStatusText = this.add.text(0, 60, '', {
+            fontSize: '12px',
             fill: '#00aa33',
-            fontFamily: 'Courier New'
+            fontFamily: 'Courier New',
+            stroke: '#000000',
+            strokeThickness: 1
         }).setOrigin(0.5);
         this.sidearmContainer.add(this.sidearmStatusText);
     }
 
     createControlArea() {
-        this.betContainer = this.add.container(150, 650);
+        this.betContainer = this.add.container(100, 650);
         
         this.betLabel = this.add.text(0, -30, 'CURRENT BET', {
             fontSize: '12px',
@@ -218,25 +336,25 @@ class GameScene extends Phaser.Scene {
             padding: { x: 15, y: 8 }
         };
 
-        this.dealButton = this.add.text(400, 650, 'DEAL', buttonStyle)
+        this.dealButton = this.add.text(350, 700, 'DEAL', buttonStyle)
             .setOrigin(0.5)
             .setInteractive({ useHandCursor: true });
 
-        this.hitButton = this.add.text(500, 650, 'HIT', {
+        this.hitButton = this.add.text(450, 700, 'HIT', {
             ...buttonStyle,
             backgroundColor: '#ff6644'
         })
             .setOrigin(0.5)
             .setInteractive({ useHandCursor: true });
 
-        this.stayButton = this.add.text(600, 650, 'STAY', {
+        this.stayButton = this.add.text(550, 700, 'STAY', {
             ...buttonStyle,
             backgroundColor: '#4466ff'
         })
             .setOrigin(0.5)
             .setInteractive({ useHandCursor: true });
 
-        this.sidearmButton = this.add.text(700, 650, 'USE SIDEARM', {
+        this.sidearmButton = this.add.text(680, 700, 'USE SIDEARM', {
             ...buttonStyle,
             backgroundColor: '#ffaa00'
         })
@@ -247,7 +365,7 @@ class GameScene extends Phaser.Scene {
     }
 
     createBettingControls() {
-        this.betUpButton = this.add.text(300, 630, '+1', {
+        this.betUpButton = this.add.text(200, 630, '+1', {
             fontSize: '14px',
             fill: '#00ff41',
             fontFamily: 'Courier New',
@@ -257,7 +375,7 @@ class GameScene extends Phaser.Scene {
             .setOrigin(0.5)
             .setInteractive({ useHandCursor: true });
 
-        this.betDownButton = this.add.text(300, 670, '-1', {
+        this.betDownButton = this.add.text(200, 670, '-1', {
             fontSize: '14px',
             fill: '#00ff41',
             fontFamily: 'Courier New',
@@ -272,7 +390,7 @@ class GameScene extends Phaser.Scene {
     }
 
     createStatusDisplay() {
-        this.messageText = this.add.text(512, 350, 'Place your bet and click DEAL to start!', {
+        this.messageText = this.add.text(512, 320, 'Place your bet and click DEAL to start!', {
             fontSize: '16px',
             fill: '#ffffff',
             fontFamily: 'Courier New',
@@ -341,12 +459,13 @@ class GameScene extends Phaser.Scene {
 
         this.battleManager.on('readyForNewRound', () => {
             this.time.delayedCall(2000, () => {
+                // Clear all card sprites before new round
+                this.clearAllCardSprites();
+                
                 this.battleManager.startNewRound();
                 
-                // Set bet to minimum for next round
-                const nextRoundMin = Math.max(1, this.battleManager.roundNumber + 1);
-                const playerHP = this.battleManager.getPlayer().hp;
-                const nextBet = Math.min(nextRoundMin, playerHP);
+                // Set bet to 1 for next round
+                const nextBet = 1;
                 this.battleManager.currentBet = nextBet;
                 this.updateBetDisplay(nextBet);
                 
@@ -387,21 +506,25 @@ class GameScene extends Phaser.Scene {
         const maxBet = this.battleManager.getMaxBet();
         
         console.log('Before adjust - Current:', currentBet, 'Min:', minBet, 'Max:', maxBet, 'Amount:', amount);
+        console.log('Player HP:', this.battleManager.getPlayer().hp);
         
         // Calculate new bet
         let newBet = currentBet + amount;
         
-        // Clamp to valid range
-        newBet = Phaser.Math.Clamp(newBet, minBet, maxBet);
+        // Ensure bet stays within valid range
+        if (newBet < minBet) {
+            newBet = minBet;
+        } else if (newBet > maxBet) {
+            newBet = maxBet;
+        }
         
-        console.log('After clamp - New bet:', newBet);
+        console.log('After adjustment - New bet:', newBet);
         
         this.battleManager.currentBet = newBet;
         this.updateBetDisplay(newBet);
         
         // Show betting constraints
-        const roundNum = this.battleManager.roundNumber + 1; // +1 because round increments on bet
-        this.updateMessage(`Round ${roundNum}: Bet ${minBet}-${maxBet} chips`);
+        this.updateMessage(`Bet ${minBet}-${maxBet} chips`);
     }
 
     updateHandDisplays() {
@@ -440,21 +563,32 @@ class GameScene extends Phaser.Scene {
         }
         this[`${owner}CardSprites`] = [];
         
+        // Also clear when starting new round
+        if (hand.length === 0) {
+            return;
+        }
+        
         // Create sprites for cards that have them
         hand.forEach((card, index) => {
             if (this.hasCardSprite(card)) {
                 const imageKey = this.getCardImageKey(card);
-                const baseX = owner === 'player' ? 400 : 400;  // Center horizontally
-                const baseY = owner === 'player' ? 580 : 120;  // Player bottom, boss top
-                const offsetX = (index - (hand.length - 1) / 2) * 60; // Center spread
+                const baseX = 512;  // Center horizontally
+                const baseY = owner === 'player' ? 520 : 180;  // Moved cards away from UI elements
+                
+                // Dynamic spacing based on number of cards
+                const maxSpacing = 80;  // No overlap
+                const minSpacing = 40;  // Some overlap for many cards
+                const spacing = Math.min(maxSpacing, Math.max(minSpacing, 600 / hand.length));
+                
+                const offsetX = (index - (hand.length - 1) / 2) * spacing;
                 
                 const cardSprite = this.add.image(baseX + offsetX, baseY, imageKey);
-                cardSprite.setScale(0.25); // Much smaller cards
-                cardSprite.setDepth(2); // Above other UI elements
+                cardSprite.setScale(0.12); // Much smaller cards (12% of original 825x1125)
+                cardSprite.setDepth(2 + index); // Higher depth for cards on the right
                 
                 this[`${owner}CardSprites`].push(cardSprite);
                 
-                console.log(`Displayed sprite for ${card.rank}${card.suit} at ${baseX + offsetX}, ${baseY} (scale: 0.25)`);
+                console.log(`Displayed sprite for ${card.rank}${card.suit} at ${baseX + offsetX}, ${baseY} (scale: 0.12)`);
             }
         });
     }
@@ -462,9 +596,36 @@ class GameScene extends Phaser.Scene {
     updateSidearmDisplay() {
         const player = this.battleManager.getPlayer();
         
+        // Clear previous card sprite
+        if (this.sidearmCardSprite) {
+            this.sidearmCardSprite.destroy();
+            this.sidearmCardSprite = null;
+        }
+        
         if (player.sidearm) {
-            this.sidearmCardText.setText(`${player.sidearm.rank}${player.sidearm.suit}`);
+            // Display card sprite if available
+            if (this.hasCardSprite(player.sidearm)) {
+                const imageKey = this.getCardImageKey(player.sidearm);
+                this.sidearmCardSprite = this.add.image(850, 430, imageKey);
+                this.sidearmCardSprite.setScale(0.10);
+                this.sidearmCardSprite.setDepth(3);
+                
+                // Add glow effect if ready to use
+                if (!player.sidearmUsed) {
+                    this.tweens.add({
+                        targets: this.sidearmCardSprite,
+                        scaleX: 0.11,
+                        scaleY: 0.11,
+                        duration: 1000,
+                        yoyo: true,
+                        repeat: -1,
+                        ease: 'Sine.easeInOut'
+                    });
+                }
+            }
+            
             this.sidearmStatusText.setText(player.sidearmUsed ? 'USED' : 'READY');
+            this.sidearmStatusText.setFill(player.sidearmUsed ? '#aa0000' : '#00ff00');
         }
     }
 
@@ -485,16 +646,10 @@ class GameScene extends Phaser.Scene {
         
         // Show betting constraints when in betting phase
         if (battleState === 'betting') {
-            const roundNum = this.battleManager.roundNumber + 1;
             const minBet = this.battleManager.getMinBet();
             const maxBet = this.battleManager.getMaxBet();
-            const player = this.battleManager.getPlayer();
             
-            if (player.hp < roundNum) {
-                this.updateMessage(`Round ${roundNum}: Must go ALL-IN with ${player.hp} chips!`);
-            } else {
-                this.updateMessage(`Round ${roundNum}: Bet ${minBet}-${maxBet} chips`);
-            }
+            this.updateMessage(`Bet ${minBet}-${maxBet} chips`);
         }
     }
 
@@ -558,5 +713,17 @@ class GameScene extends Phaser.Scene {
         const exists = this.textures.exists(imageKey);
         console.log(`Checking sprite ${imageKey}: ${exists ? '✅ exists' : '❌ missing'}`);
         return exists;
+    }
+    
+    // Clear all card sprites from the board
+    clearAllCardSprites() {
+        if (this.playerCardSprites) {
+            this.playerCardSprites.forEach(sprite => sprite.destroy());
+            this.playerCardSprites = [];
+        }
+        if (this.bossCardSprites) {
+            this.bossCardSprites.forEach(sprite => sprite.destroy());
+            this.bossCardSprites = [];
+        }
     }
 }

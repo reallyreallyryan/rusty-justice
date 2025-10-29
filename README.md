@@ -7,12 +7,15 @@ Rusty Justice is a fast-paced, single-player blackjack roguelike where chips are
 ### Current Features (Full Release Candidate)
 - ✅ **Complete 6-boss campaign** with unique abilities and behaviors
 - ✅ **Custom cyber-western deck** with ⚙☀⚡💀 suits and 0-10 ranks
+- ✅ **Complete card sprite system** - All 44 cards visually implemented
+- ✅ **Character & boss portraits** - Visual character cards for immersion
 - ✅ **Progressive betting system** (minimum bet = round number)
 - ✅ **Dynamic boss mechanics** with varied stay/bust thresholds
-- ✅ **Sidearm system** - One-time use bonus card per round
+- ✅ **Sidearm system** - Visual card display with animations
 - ✅ **All-in mechanics** for low-chip strategic play
 - ✅ **Enhanced damage system** (bust = both bets as damage)
 - ✅ **Scene progression** with intermission and victory screens
+- ✅ **Professional visual layout** - Organized UI with clear information hierarchy
 - ✅ **Retro cyber-western UI** with terminal aesthetic
 
 ## 🚀 Quick Start
@@ -98,16 +101,57 @@ Fight through 6 unique bosses, each with different abilities:
    - *Override*: Can change one card value by ±1
    - Stays at 20, busts at 24
 
+## 🎨 Visual Layout & Information Architecture
+
+### Game Screen Layout (1024x768)
+```
+┌─────────────────────────────────────────────────────────┐
+│ [Title: RUSTY JUSTICE]                   [Boss Score]   │
+│                                                         │
+│ [Boss Card]  [Boss HP & Bust Info]                     │
+│              [Boss Cards: ♠ ♠ ♠]                       │
+│                                                         │
+│ [Central Message Area]                                  │
+│                                                         │
+│              [Player Cards: ♦ ♦ ♦]                      │
+│ [Player Card] [Player HP]               [Player Score] │
+│                                         [Sidearm Card] │
+│                                                         │
+│ [Betting] [DEAL] [HIT] [STAY] [SIDEARM]                │
+└─────────────────────────────────────────────────────────┘
+```
+
+### Key Visual Elements
+- **Character Cards**: 15% scale portraits with bordered backgrounds
+- **Playing Cards**: 12% scale with dynamic spacing (40-80px apart)
+- **Score Displays**: Large fonts (24px) on right side with backgrounds
+- **Sidearm**: Visual card with pulsing animation when ready
+- **Information Hierarchy**: Critical info always visible and accessible
+
+### Responsive Design Features
+- **Dynamic card spacing**: Automatically adjusts based on hand size
+- **Depth layering**: Cards overlap naturally with proper z-ordering  
+- **Contrast backgrounds**: Semi-transparent overlays ensure readability
+- **Color coding**: Blue for player areas, red for boss areas, green for UI
+
 ## 📁 Project Structure
 ```
 /rusty-justice/
 ├── index.html              # Main game entry point
 ├── main.js                 # Phaser game configuration
+├── /assets/
+│   └── /cards/            # All 44 card sprites + character portraits
+│       ├── black0.png → black10.png    # Skull suit (11 cards)
+│       ├── green0.png → green10.png    # Gear suit (11 cards)
+│       ├── orange0.png → orange10.png  # Sun suit (11 cards)
+│       ├── purple0.png → purple10.png  # Lightning suit (11 cards)
+│       ├── bangbang.jpeg               # Player character card
+│       └── nasa-gamecrafter.jpg        # Boss character card
 ├── /scenes/
-│   ├── BootScene.js        # Game initialization
+│   ├── BootScene.js        # Game initialization & character loading
 │   ├── StartScene.js       # Main menu
-│   ├── CharacterSelectScene.js # Character selection
-│   ├── GameScene.js        # Core blackjack gameplay
+│   ├── CharacterSelectScene.js # Character selection with card display
+│   ├── GameScene.js        # Core blackjack with visual card system
 │   ├── IntermissionScene.js # Between-boss progression
 │   ├── RunCompleteScene.js # Victory celebration
 │   └── GameOverScene.js    # Defeat screen
@@ -158,31 +202,59 @@ this.tweens.add({
 });
 ```
 
-## 🎨 Card Sprite System (Implemented!)
+## 🎨 Complete Visual Card System
 
 ### Current Implementation
-- ✅ **Hybrid card display**: Cards show as sprites when available, text fallback otherwise
-- ✅ **Smart positioning**: Player cards at bottom, boss cards at top, centered spread
-- ✅ **Automatic detection**: System checks for sprite availability per card
-- ✅ **Proper scaling**: Cards sized appropriately for gameplay (0.25 scale)
+- ✅ **Full card sprite display**: All 44 cards implemented as visual sprites
+- ✅ **Intelligent layout**: Dynamic spacing prevents overlap, cards spread clearly
+- ✅ **Optimized scaling**: Cards sized at 12% for perfect gameplay visibility
+- ✅ **Depth sorting**: Rightmost cards appear on top for natural card game feel
+- ✅ **Professional positioning**: Cards positioned away from UI elements
 
-### Cards Currently Available as Sprites
-- **💀 Black/Skull suit**: Complete set (0-10) - 11 cards
-- **⚙ Green/Gear suit**: Partial set (0, 1, 10) - 3 cards  
-- **☀ Orange/Sun suit**: Coming soon
-- **⚡ Purple/Lightning suit**: Coming soon
+### Cards Fully Implemented as Sprites
+- **💀 Black/Skull suit**: Complete set (0-10) - 11 cards ✅
+- **⚙ Green/Gear suit**: Complete set (0-10) - 11 cards ✅
+- **☀ Orange/Sun suit**: Complete set (0-10) - 11 cards ✅  
+- **⚡ Purple/Lightning suit**: Complete set (0-10) - 11 cards ✅
+- **Total**: 44/44 cards implemented (100% complete)
 
-### Adding New Card Sprites
-1. Create PNG files following naming convention: `black5.png`, `green7.png`, etc.
-2. Place in `/assets/cards/` directory
-3. Add to preload function in `scenes/GameScene.js`
-4. Cards automatically appear as sprites when dealt
+### Visual Layout Features
+- **Dynamic spacing**: 80px spacing for few cards, reduces to 40px for many cards
+- **Centered positioning**: Cards always centered horizontally for balance
+- **Clear separation**: Player cards at Y=520, boss cards at Y=180
+- **Background contrast**: Semi-transparent overlays improve card visibility
 
 ### Technical Implementation
-- **Preload system**: Hardcoded loading of existing cards
-- **Fallback system**: Text display for cards without sprites
-- **Position calculation**: Dynamic centering and spreading
-- **Memory management**: Sprites destroyed and recreated each hand
+- **Automated loading**: All cards loaded systematically by suit
+- **Smart positioning**: Dynamic offset calculation for perfect centering
+- **Memory management**: Proper sprite cleanup between rounds
+- **Depth management**: Cards layer naturally with index-based depth
+
+## 🎭 Character & Visual Systems
+
+### Character Portrait System
+- ✅ **Player character cards**: Visual character representation with bangbang.jpeg
+- ✅ **Boss character portraits**: Dynamic boss cards using nasa-gamecrafter.jpg
+- ✅ **Character selection**: Card-based character picker in selection screen
+- ✅ **Character mapping**: Extensible system for future characters and bosses
+
+### Enhanced Sidearm Display
+- ✅ **Visual sidearm cards**: Actual card sprites replace text display
+- ✅ **Animated indicators**: Pulsing glow effect when sidearm is ready
+- ✅ **Status integration**: Color-coded READY/USED status below card
+- ✅ **Proper positioning**: Right-side container with background styling
+
+### Improved Score & UI Layout
+- ✅ **Always-visible scores**: Player and boss totals moved to right side
+- ✅ **Enhanced visibility**: Score backgrounds with borders and larger fonts
+- ✅ **Strategic positioning**: All critical info accessible during gameplay
+- ✅ **Professional layout**: Clean separation of game elements
+
+### Visual Polish Features
+- ✅ **Background contrast**: Semi-transparent overlays behind card areas
+- ✅ **Color-coded elements**: Different background colors for player vs boss areas
+- ✅ **Depth layering**: Proper z-index management for visual hierarchy
+- ✅ **Responsive spacing**: Dynamic layout adjusts to number of cards
 
 ## 🔮 Completed Features
 
@@ -194,7 +266,9 @@ this.tweens.add({
 - ✅ Scene flow with intermissions and victory
 - ✅ Boss abilities framework (ready for implementation)
 - ✅ Round-based progression tracking
-- ✅ Card sprite system with hybrid display
+- ✅ Complete visual card system (44/44 cards)
+- ✅ Character and boss portrait system
+- ✅ Professional UI layout with optimal information display
 
 ### Technical Achievements  
 - ✅ Modular architecture with clean separation
@@ -202,17 +276,28 @@ this.tweens.add({
 - ✅ Comprehensive game state management
 - ✅ Extensible boss and card systems
 - ✅ Professional code organization
+- ✅ Advanced visual rendering with sprite management
+- ✅ Dynamic layout system with responsive positioning
+- ✅ Character asset loading and mapping system
 
 ## 🐛 Known Issues
 - Debug logging active in betting system (for tuning)
-- 33 cards still need sprite artwork (14 implemented, 30 remaining)
 
 ## 🎯 Current Status
 
-**Version**: Release Candidate 1.1  
+**Version**: Release Candidate 1.2  
 **Engine**: Phaser 3.70.0  
-**Completeness**: Fully playable campaign with partial sprite system  
-**Next Phase**: Complete card sprite artwork (30 cards remaining)  
-**Sprite System**: ✅ Implemented and working
+**Completeness**: Fully playable campaign with complete visual system  
+**Visual System**: ✅ All 44 cards + character portraits implemented  
+**Next Phase**: Boss ability implementations and additional content
 
-Rusty Justice has evolved from MVP to a complete cyber-western blackjack roguelike with unique mechanics, progressive difficulty, and a full boss campaign. The foundation is solid for visual enhancements and additional content!
+### Achievement Summary
+Rusty Justice has evolved from MVP to a **complete professional cyber-western blackjack roguelike** featuring:
+
+- **Complete Visual Experience**: All 44 playing cards implemented as sprites
+- **Character Portrait System**: Player and boss character cards for immersion  
+- **Professional UI Layout**: Optimized information display and visual hierarchy
+- **Polished Gameplay**: Smooth visual feedback and intuitive controls
+- **Extensible Framework**: Ready for additional characters, bosses, and content
+
+The game now provides a **full visual experience** with professional-quality layout, complete card artwork, and character-driven storytelling through portraits. The foundation is rock-solid for expansion content and gameplay enhancements!

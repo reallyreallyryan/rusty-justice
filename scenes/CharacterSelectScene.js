@@ -68,14 +68,12 @@ class CharacterSelectScene extends Phaser.Scene {
         characterBorder.setStrokeStyle(3, 0x00ff41);
         this.characterContainer.add(characterBorder);
         
-        this.characterPortrait = this.add.rectangle(0, -20, 100, 120, 0x003311);
+        this.characterPortrait = this.add.rectangle(0, -20, 120, 160, 0x003311);
         this.characterPortrait.setStrokeStyle(2, 0x00ff41);
         this.characterContainer.add(this.characterPortrait);
         
-        this.characterIcon = this.add.text(0, -20, '🤠', {
-            fontSize: '60px'
-        }).setOrigin(0.5);
-        this.characterContainer.add(this.characterIcon);
+        // Character card image (will be set dynamically)
+        this.characterCard = null;
         
         this.characterName = this.add.text(0, 60, '', {
             fontSize: '20px',
@@ -227,6 +225,28 @@ class CharacterSelectScene extends Phaser.Scene {
         
         this.selectedCharacterIndex = index;
         const character = this.characters[index];
+        
+        // Update character card image
+        if (this.characterCard) {
+            this.characterCard.destroy();
+        }
+        
+        // Display character card based on character ID
+        const characterCardMap = {
+            'bang_bang': 'character_bang_bang',
+            'loco_motive': 'character_loco_motive',
+            'tre_boujie': 'character_tre_boujie',
+            'eight_mm': 'character_eight_mm',
+            'crankshaft': 'character_crankshaft',
+            'bashcan': 'character_bashcan'
+        };
+        
+        const characterCardKey = characterCardMap[character.id] || 'character_rusty';
+        if (this.textures.exists(characterCardKey)) {
+            this.characterCard = this.add.image(512, 280, characterCardKey);
+            this.characterCard.setScale(0.2); // Scale to fit in portrait area
+            this.characterCard.setDepth(1);
+        }
         
         this.characterName.setText(character.name);
         this.characterClass.setText(character.class);

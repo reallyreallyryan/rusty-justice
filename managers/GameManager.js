@@ -17,7 +17,7 @@ class GameManager {
                 gameId: null
             },
             battleData: {
-                currentBet: 6,
+                currentBet: 1,
                 roundsWon: 0,
                 currentBoss: null,
                 currentBossIndex: 0,  // NEW: Track position in boss chain
@@ -28,20 +28,60 @@ class GameManager {
         
         this.characters = [
             {
-                id: 'rusty_gunslinger',
-                name: 'Rusty',
-                class: 'Gunslinger',
-                baseHP: 21,  // Changed to 21
-                description: 'A weathered gunslinger seeking justice in the cyber frontier',
-                abilities: ['Sidearm Mastery', 'Quick Draw']
+                id: 'bang_bang',
+                name: 'BANG BANG',
+                class: 'Scorcher',
+                baseHP: 21,
+                description: 'Lightning-fast Scorcher with twin cyber-revolvers blazing trails through the wasteland',
+                abilities: ['Rapid Fire', 'Heat Burst']
+            },
+            {
+                id: 'loco_motive',
+                name: 'LOCO-MOTIVE',
+                class: 'Scorcher',
+                baseHP: 21,
+                description: 'Steam-powered Scorcher who charges through enemies like a runaway train',
+                abilities: ['Steam Rush', 'Pressure Release']
+            },
+            {
+                id: 'tre_boujie',
+                name: 'TRE-BOUJIE',
+                class: 'Torcher',
+                baseHP: 21,
+                description: 'Elegant Torcher who burns enemies with style and sophisticated flames',
+                abilities: ['Elegant Inferno', 'Refined Burn']
+            },
+            {
+                id: 'eight_mm',
+                name: '8MM',
+                class: 'Torcher',
+                baseHP: 21,
+                description: 'Precision Torcher specializing in concentrated fire and tactical burns',
+                abilities: ['Focused Flame', 'Tactical Torch']
+            },
+            {
+                id: 'crankshaft',
+                name: 'CRANKSHAFT',
+                class: 'Crusher',
+                baseHP: 21,
+                description: 'Mechanical Crusher who pounds enemies with heavy industrial might',
+                abilities: ['Heavy Strike', 'Engine Roar']
+            },
+            {
+                id: 'bashcan',
+                name: 'BASHCAN',
+                class: 'Crusher',
+                baseHP: 21,
+                description: 'Brutal Crusher who smashes through obstacles with raw destructive power',
+                abilities: ['Demolition Slam', 'Wreck Force']
             }
         ];
         
         // ALL 6 SLUGS!
         this.bosses = [
             {
-                id: 'slugjaw',
-                name: 'Slugjaw',
+                id: 'nasa',
+                name: 'NASA',
                 hp: 21,
                 maxHP: 21,
                 stayNumber: 17,
@@ -55,8 +95,8 @@ class GameManager {
                 icon: '🏜️'
             },
             {
-                id: 'circuit_saint',
-                name: 'Circuit Saint',
+                id: 'scuzz_bucket',
+                name: 'SCUZZ BUCKET',
                 hp: 21,
                 maxHP: 21,
                 stayNumber: 18,
@@ -70,8 +110,8 @@ class GameManager {
                 icon: '⚡'
             },
             {
-                id: 'pit_king',
-                name: 'Pit King',
+                id: 'pistol_plink',
+                name: 'PISTOL PLINK',
                 hp: 21,
                 maxHP: 21,
                 stayNumber: 19,
@@ -85,8 +125,8 @@ class GameManager {
                 icon: '⚔️'
             },
             {
-                id: 'queen_scylla',
-                name: 'Queen Scylla',
+                id: 'piglet',
+                name: 'PIGLET',
                 hp: 21,
                 maxHP: 21,
                 stayNumber: 17,
@@ -100,8 +140,8 @@ class GameManager {
                 icon: '👑'
             },
             {
-                id: 'the_proxy',
-                name: 'The Proxy',
+                id: 'null',
+                name: 'NULL',
                 hp: 21,
                 maxHP: 21,
                 stayNumber: 16,
@@ -115,8 +155,8 @@ class GameManager {
                 icon: '🪞'
             },
             {
-                id: 'slug_prime',
-                name: 'SLUG PRIME',
+                id: 'wheeze',
+                name: 'WHEEZE',
                 hp: 21,
                 maxHP: 21,
                 stayNumber: 20,

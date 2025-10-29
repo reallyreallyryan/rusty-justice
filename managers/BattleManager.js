@@ -83,28 +83,21 @@ class BattleManager {
         // Increment round at the start of each new round
         this.roundNumber++;
         
-        // Calculate dynamic min bet based on round
-        const dynamicMinBet = this.roundNumber;
+        // Simple betting validation - always bet 1 to 6 (or max HP)
+        const minBet = 1;
+        const maxBet = Math.min(this.maxBet, this.player.hp);
         
-        // If player has fewer chips than round number, must go all-in
-        if (this.player.hp < dynamicMinBet) {
-            amount = this.player.hp; // Force all-in
-            console.log(`Round ${this.roundNumber}: Player forced all-in with ${amount} chips`);
-        } else {
-            // Normal betting validation
-            if (amount < dynamicMinBet || amount > this.maxBet) {
-                console.warn(`Bet must be between ${dynamicMinBet} and ${this.maxBet}, got:`, amount);
-                return false;
-            }
-            
-            if (amount > this.player.hp) {
-                console.warn('Cannot bet more than current HP');
-                return false;
-            }
+        if (amount < minBet || amount > maxBet) {
+            console.warn(`Bet must be between ${minBet} and ${maxBet}, got:`, amount);
+            return false;
         }
         
-        // Update boss bet based on round number
-        this.boss.currentBet = this.roundNumber;
+        // Boss betting progression: [1, 3, 4, 5, 7, 9, 11, 13]
+        const bossBettingProgression = [1, 3, 4, 5, 7, 9, 11, 13];
+        const bosseBetIndex = Math.min(this.roundNumber - 1, bossBettingProgression.length - 1);
+        this.boss.currentBet = bossBettingProgression[bosseBetIndex];
+        
+        console.log(`Round ${this.roundNumber}: Boss bets ${this.boss.currentBet} chips`);
         
         this.currentBet = amount;
         this.battleState = 'dealing';
@@ -319,9 +312,8 @@ class BattleManager {
     }
     
     getMinBet() {
-        // Dynamic min bet based on round, but can go all-in if chips are lower
-        const roundMinBet = Math.max(1, this.roundNumber);
-        return Math.min(roundMinBet, this.player.hp);
+        // Always minimum bet of 1
+        return 1;
     }
     
     getMaxBet() {
